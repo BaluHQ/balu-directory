@@ -19,7 +19,7 @@ var gvScriptName_log = 'log';
  * Parse init
  */
 var gvAppId = 'mmhyD9DKGeOanjpRLHCR3bX8snue22oOd3NGfWKu';
-var gvParseServerURL = 'https://balu-parse-server.herokuapp.com/parse'; // repeated main.js
+var gvParseServerURL = 'https://balu-parse-server.herokuapp.com/parse'; // repeated in main.js
 
  /* Logging control */
  var gvLogErrors = true;
