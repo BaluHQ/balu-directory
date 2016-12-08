@@ -1,0 +1,235 @@
+/* Primary container divs */
+
+div#productGroupSearchContainer_div {
+    margin-top: 20px;
+    text-align: center;
+    height: 40px;
+}
+div#categoryFilterContainer_div {
+    text-align: center;
+}
+div#brandListContainer_div {
+
+}
+
+/* Customisations to the top nav bar */
+
+.top-bar {
+    background-color: black;
+}
+
+/* Cateogry Filter */
+
+.categoryFilter-div {
+    width: 100%;
+}
+
+.categoryFilter-hidden-div {
+    width: 100%;
+    display: none;
+}
+
+.categoryTag-a {
+    background-color: #6bd3c2;  /* Balu Green */
+
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: 400;
+    line-height: 2.3;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+
+.categoryTag-selected-a { /* Must come after .categoryTag-a */
+    background-color: green;
+}
+
+.categoryFilters-secondary-a { /* Must come after .categoryTag-a */
+    background-color: grey;
+    margin-top: 20px;
+}
+
+#showAllCategories_a {
+    background-color: ##6bd3c2;  /* Balu Green */
+}
+#showLessCategories_a {
+    background-color: ##6bd3c2;  /* Balu Green */
+}
+
+/* Product Group Search */
+
+.productGroupSearch_div {
+    margin-bottom: 25px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#productGroupSearch_input {
+    margin-bottom: 5px;
+}
+
+.productGroupSearch-feedbackMsg-span {
+    color: red;
+    float: left;
+    font-size: 9pt;
+    text-align: left;
+}
+
+
+/* Spinning Loading Indicator */
+
+#loadingLogo_img  {
+    margin-top: 30px;
+    width: 50px;
+    -webkit-animation:spin 5s linear infinite;
+    -moz-animation:spin 5s linear infinite;
+    animation:spin 5s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+/* Brand List */
+
+.brandContainer-div {
+    /*border-bottom: 1px ridge #D8D8D8;*/
+    padding-bottom: 10px;
+}
+
+.brandImg-div {
+    text-align: center;
+}
+
+.brandLogo-img {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.brandText-div {
+    position:    relative;
+    margin-bottom: 20px;
+}
+
+.brandTitle-span {
+
+}
+
+.brandTitle-link {
+
+}
+
+.brandSpiel-div {
+    max-height: 200px; /* must match gvHeightOfConcatSpiel in ui_index.js */
+    position:   relative;
+    overflow:   hidden;
+    margin-bottom: 5px;
+}
+
+.brandSpiel-p {
+    margin-bottom: 10px; /* spacing between spiel paragraphs */
+    font-size:  10pt;
+}
+
+.brandSpielFadeOut-p {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 30px 0;
+    margin: 0px;
+    /*background-image: linear-gradient(to bottom, transparent, white); */
+    background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+
+.brandTextShowMoreLess-p {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 10px; /* This controls how much the "more" button overlaps the faded-out text */
+    margin: 0px;
+    text-align: center;
+}
+
+.brandTextShowMore-span {
+    display: inline;
+    font-size:  10pt;
+    text-align: center;
+    margin: 0px;
+}
+
+.brandTextShowMore-a {
+    width: 100px;
+    height: 25px;
+    padding-top: 6px !important;
+}
+
+/* Search For More message */
+
+.searchForMore-span {
+    text-align: center;
+    margin-top: 30px;
+    color: #73bde5;
+    font-size: 10pt;
+}
+
+/* App Ad */
+
+div#adPopupContainer_div {
+}
+
+.adPopup-div {
+    display: none;
+}
+
+@media only screen and (max-device-width:480px) {
+    .adPopup-div {
+        display:  block;
+        position: fixed;
+        top: 60px;
+        left: 60px;
+        width: 150px;
+        padding: 0px 10px 10px 10px;
+        border-style: solid;
+        background-color: white;
+    }
+}
+
+#closePopup_a{
+    float: right;
+}
+
+div#adBarContainer_div {
+}
+
+.adBar-div {
+    /*position: fixed;*/
+}
+
+.ad-img {
+    border-style: solid;
+    border-color: #6bd3c2;
+    border-width: thin;
+}
+
+
+.temp {
+    width: 200px;
+    height: 67px;
+    border-style: solid;
+    border-width: medium;
+    border-color: white;
+    margin: 10px;
+    padding: 12.5px;
+    text-align: center;
+    color: white;
+    font-weight: bolder;
+    font-size: 25px;
+    background-color: #6bd3c2;
+    font-family: sans-serif;
+    outline: 5px solid #6bd3c2;
+}
