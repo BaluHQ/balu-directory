@@ -1,0 +1,27 @@
+{
+  "name": "directory",
+  "version": "0.0.1",
+  "description": "A web-hosted directory of the Balu brands and products",
+  "main": "main.js",
+  "dependencies": {
+      "bluebird": "3.4.6",
+      "body-parser": "1.15.2",
+      "ejs": "2.5.2",
+      "express": "4.14.0",
+      "parse": "1.9.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BaluHQ/balu-directory.git"
+  },
+  "author": "BaluHQ",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BaluHQ/balu-directory/issues"
+  },
+  "homepage": "https://github.com/BaluHQ/balu-directory#readme"
+}
