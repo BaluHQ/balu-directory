@@ -21,6 +21,7 @@ var gvDataLastRefreshedDate = null;
 var gvRefreshInterval = 1 * 24 * 60 * 60 * 1000; // miliseconds. Change the first number for days.
 
 var gvBrands = [];
+var gvSearchProducts = [];
 var gvRecommendations = [];
 
 /* Logging control */
@@ -47,10 +48,6 @@ var gvAppId = 'mmhyD9DKGeOanjpRLHCR3bX8snue22oOd3NGfWKu';
     log.log(gvScriptName,lvFunctionName,'Initialised Balu Parse Server to ' + gvParseServerURL,' INFO');
 
 })();
-
-function getDataFromCloud(pvFunctionName,pvArgs,pvCallback){
-
-}
 
 module.exports = {
 
@@ -97,15 +94,19 @@ module.exports = {
         } else {
             var lvDiff = Math.abs(lvCurrentDate - gvDataLastRefreshedDate);
             if(lvDiff > gvRefreshInterval) {
-                lvLog += log.log(gvScriptName,lvFunctionName,'Data needs refreshing >>> Current date (' + lvCurrentDate.toLocaleString() + ') - gvDataLastRefreshedDate (' + gvDataLastRefreshedDate.toLocaleString() + ') == ' + lvDiff + ', compared to gvRefreshInterval (' + gvRefreshInterval + ')','DEBUG');
+                lvLog += log.log(gvScriptName,lvFunctionName,'Data needs refreshing','DEBUG');
                 lvRefreshNeeded = true;
             } else {
-                lvLog += log.log(gvScriptName,lvFunctionName,'Data does not need refreshing >>> Current date (' + lvCurrentDate.toLocaleString() + ') - gvDataLastRefreshedDate (' + gvDataLastRefreshedDate.toLocaleString() + ') == ' + lvDiff + ', compared to gvRefreshInterval (' + gvRefreshInterval + ')','DEBUG');
+                lvLog += log.log(gvScriptName,lvFunctionName,'Data does not need refreshing','DEBUG');
                 lvRefreshNeeded = false;
             }
         }
 
+        // Assuming we're ready for a refresh of the data, we're going to call the balu-parse-server for
+        // brands, searchProducts, and recommendations.
+        // To do: run these in parallel and wait for all to be returned ?
         var lvData = {brands: gvBrands,
+                      searchProducts: gvSearchProducts,
                       recommendations: gvRecommendations,
                       log: lvLog};
 
@@ -116,19 +117,36 @@ module.exports = {
                     gvBrands = pvResponse_eb.data;
                     lvData.brands = gvBrands;
                     lvData.log += pvResponse_eb.log;
-                    Parse.Cloud.run('getRecommendations',{},{
-                        success: function(pvResponse_rec){
-                            console.log(pvResponse_rec.log.substring(1,pvResponse_rec.log.length)); // output the parse-server logs to the console immediately, to help with debugging
-                            gvRecommendations = pvResponse_rec.data;
-                            lvData.recommendations = gvRecommendations;
-                            lvData.log += pvResponse_rec.log;
-                            gvDataLastRefreshedDate = new Date();
-                            pvCallback(null,lvData);
+
+                    Parse.Cloud.run('getSearchProducts',{},{
+                        success: function(pvResponse_search){
+                            console.log(pvResponse_search.log.substring(1,pvResponse_search.log.length)); // output the parse-server logs to the console immediately, to help with debugging
+                            gvSearchProducts = pvResponse_search.data;
+                            lvData.searchProducts = gvSearchProducts;
+                            lvData.log += pvResponse_search.log;
+
+                            Parse.Cloud.run('getRecommendations',{},{
+                                success: function(pvResponse_rec){
+                                    console.log(pvResponse_rec.log.substring(1,pvResponse_rec.log.length)); // output the parse-server logs to the console immediately, to help with debugging
+                                    gvRecommendations = pvResponse_rec.data;
+                                    lvData.recommendations = gvRecommendations;
+                                    lvData.log += pvResponse_rec.log;
+
+                                    // We've finished the last data request...
+                                    gvDataLastRefreshedDate = new Date();
+                                    pvCallback(null,lvData);
+                                },
+                                error: function(pvError_rec){
+                                    var lvError_rec = JSON.parse(pvError_rec.message);
+                                    log.log(lvError_rec.log); // print the error from the balu-parse-server to the console
+                                    pvCallback(lvError_rec.message,pvArgs); // send the user-friendly message back to the front end
+                                }
+                            });
                         },
-                        error: function(pvError_rec){
-                            var lvError_rec = JSON.parse(pvError_rec.message);
-                            log.log(lvError_rec.log); // print the error from the balu-parse-server to the console
-                            pvCallback(lvError_rec.message,pvArgs); // send the user-friendly message back to the front end
+                        error: function(pvError_search){
+                            var lvError_eb = JSON.parse(pvError_search.message);
+                            log.log(pvError_search.log); // print the error from the balu-parse-server to the console
+                            pvCallback(pvError_search.message,pvArgs); // send the user-friendly message back to the front end
                         }
                     });
                 },
@@ -141,58 +159,5 @@ module.exports = {
         } else {
             pvCallback(null,lvData);
         }
-    },
-
-    /*
-     *
-     */
-    filterData: function(pvArgs, pvCallback){
-
-        var lvLog = pvArgs.log;
-        var lvFunctionName = 'filterData';
-        lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
-
-        module.exports.getData({log: lvLog},function(pvError,pvData){
-            var lvData = {};
-            lvData.log = pvData.log;
-            lvData.isBrand = false;
-            lvData.brands = [];
-            lvData.recommendations = [];
-
-            var lvSearchTerm = pvArgs.searchTerm.trim().toLowerCase();
-
-            /* First, let's see if this is a brand */
-
-            for(var i = 0; i < pvData.brands.length; i++){
-                if(lvSearchTerm !== '' && pvData.brands[i].brandName.toLowerCase() === lvSearchTerm) {
-                    lvData.log += log.log(gvScriptName,lvFunctionName,'Matched on brand search',' INFO');
-                    lvData.isBrand = true;
-                    lvData.brands.push(pvData.brands[i]);
-                }
-            }
-
-            /* Now, let's do a product match (or, if we have already matched brand, just get all the brands' products) */
-
-            if(lvData.isBrand){
-                for(var j = 0; j < lvData.brands.length; j++){
-                    for(var k = 0; k < pvData.recommendations.length; k++){
-                        if(lvData.brands[j].brandId === pvData.recommendations[k].brandId) {
-                            lvData.recommendations.push(pvData.recommendations[k]);
-                        }
-                    }
-                }
-                lvData.log += log.log(gvScriptName,lvFunctionName,'Picked up ' + lvData.recommendations.length + ' recommendations for ' + lvData.brands.length + ' brand',' INFO');
-
-            } else {
-
-                // to do: SEARCH!!!
-
-                lvData.log += log.log(gvScriptName,lvFunctionName,'Matched on product search',' INFO');
-                lvData.recommendations = pvData.recommendations;
-            }
-
-            lvData.log += log.log(gvScriptName,lvFunctionName,'Data filtering complete','PROCS');
-            pvCallback(lvData);
-        });
     }
 };

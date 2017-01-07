@@ -39,7 +39,6 @@ log.setLoggingMode({parseServerURL: model.getBaluParseServerURL()}); // e.g. on 
     .then(function(pvArgs){
     });
 
-
 })();
 
 module.exports = {
@@ -68,12 +67,7 @@ module.exports = {
         lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
         lvLog += log.log(gvScriptName,lvFunctionName,'req.query => ' + JSON.stringify(req.query),'PROCS');
 
-        // Fire this off now to make sure the data is refreshed before the first search is done
-        model.getDataAsync({log: lvLog})
-        .then(function(pvArgs){
-        });
-
-        // And load the search page
+        // Load the search page
         var lvPageElements = {isSearchTerm: false,
                               searchTerm: ''};
 
@@ -102,9 +96,24 @@ module.exports = {
      * POST Route Handlers *
      ***********************/
 
+    getDataPOST: function(req,res,next){
+
+        var lvLog = req.body.log;
+        var lvFunctionName = 'getDataPOST';
+        lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
+
+        lvArgs = {log: lvLog};
+
+        model.getDataAsync(lvArgs)
+        .then(function(pvData){
+            pvData.log += log.log(gvScriptName,lvFunctionName,'Back end complete, returning data to client','DEBUG');
+            res.send(pvData);
+        });
+    },
+
     searchPOST: function(req,res,next){
 
-        var lvLog = req.log;
+        var lvLog = req.body.log;
         var lvFunctionName = 'searchPOST';
         lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
 
@@ -121,7 +130,7 @@ module.exports = {
 
     logPOST: function(req,res,next){
 
-        var lvLog = req.log;
+        var lvLog = req.body.log;
         var lvFunctionName = 'logPOST';
         lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
         lvArgs = {eventName: req.body.eventName,

@@ -7,32 +7,47 @@
 */
 
 /* Logging control */
-var gvScriptName = 'mainCS';
+var gvScriptName_main = 'mainCS';
 
 /*
  * Initialise the script
  */
 (function initialise(){
 
+    var lvLog = '';
     var lvFunctionName = 'initialise';
-    log(gvScriptName + '.' + lvFunctionName + ': Start','INITS');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Start','INITS');
 
-    // Do everything when the DOM is ready
     $(document).ready(function(){
-        var lvArgs = {eventName: 'WEB_APP-PAGE_LOAD',
-                      url: window.location.href,
-                      message: ''};
-        $.post('/log',lvArgs,function(pvResponse){
+
+        var lvArgs_log = {eventName: 'WEB_APP-PAGE_LOAD',
+                          url: window.location.href,
+                          message: '',
+                          log: lvLog};
+
+        $.post('/log',lvArgs_log,function(pvResponse){
         });
 
-        /*
-         * Listeners
-         */
+        var lvArgs_getData = {log: lvLog};
 
-        $('#buttonSearch').click(searchButtonClick_listener);
-        $('#fieldSearch').keypress(searchButtonEnter_listener);
+        // We pull all the data into the client scripts so we can have super-fast search
+        getData(lvArgs_getData,function(pvLog){
+
+            // When the data is loaded AND when the DOM is loaded activate the search button
+
+            $('#buttonSearch').val('Balu Search');
+            $('#buttonSearch').click(searchButtonClick_listener);
+            $('#fieldSearch').keypress(searchButtonEnter_listener);
+
+            // Append logs to screen
+
+            $('#preLog').append(pvLog);
+        });
 
     },false);
+
+    // If anything else is needed immediatly on the page, do it here
+    //$(document).ready(function(){ ... },false);
 
 })();
 
@@ -48,30 +63,43 @@ function searchButtonEnter_listener(pvEvent){
 }
 function searchButtonClick_listener(pvEvent){
 
+    var lvLog = '';
     var lvFunctionName = 'searchButtonClick_listener';
-    log(gvScriptName + '.' + lvFunctionName + ': Sending','LSTNR');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Sending','LSTNR');
 
-    var lvArgs = {eventName: 'WEB_APP-SEARCH',
-                  searchTerm: $('#fieldSearch').val(),
-                  message: ''};
+    var lvArgs_log = {eventName: 'WEB_APP-SEARCH',
+                      searchTerm: $('#fieldSearch').val(),
+                      message: '',
+                      log: lvLog};
 
-    $.post('/log',lvArgs,function(pvResponse){
+    $.post('/log',lvArgs_log,function(pvResponse){
     });
 
-    search($('#fieldSearch').val());
+    var lvArgs_search = {searchTerm: $('#fieldSearch').val(),
+                         log: lvLog};
+
+    search(lvArgs_search,function(pvData){
+
+        // Update the URL
+        window.history.pushState('', '', '?s=' + pvData.searchTerm);
+        displayRecommendations(pvData);
+    });
 }
 
 /*
  *
  */
 function brandHomepage_listener(pvEvent){
+
+    var lvLog = '';
     var lvFunctionName = 'brandHomepage_listener';
-    log(gvScriptName + '.' + lvFunctionName + ': Sending','LSTNR');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Sending','LSTNR');
 
     var lvArgs = {eventName: 'WEB_APP-BRAND_CLICK_THROUGH',
                   brandId: $(this).data('brandilnd'),
                   searchTerm: $('#fieldSearch').val(),
-                  message: ''};
+                  message: '',
+                  log: lvLog};
 
     $.post('/log',lvArgs,function(pvResponse){
     });
@@ -83,15 +111,18 @@ function brandHomepage_listener(pvEvent){
  *
  */
 function recLink_listener(pvEvent){
+
+    var lvLog = '';
     var lvFunctionName = 'recLink_listener';
-    log(gvScriptName + '.' + lvFunctionName + ': Sending','LSTNR');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Sending','LSTNR');
 
     // To do: tracked tabs
     var lvArgs = {eventName: 'WEB_APP-REC_CLICK_THROUGH',
                   recommendationId: $(this).data('recid'),
                   brandId: $(this).data('brandid'),
                   searchTerm: $('#fieldSearch').val(),
-                  message: ''};
+                  message: '',
+                  log: lvLog};
 
     $.post('/log',lvArgs,function(pvResponse){
     });
@@ -103,14 +134,17 @@ function recLink_listener(pvEvent){
  *
  */
 function brandDetailLink_listener(pvEvent){
+
+    var lvLog = '';
     var lvFunctionName = 'brandDetailLink_listener';
-    log(gvScriptName + '.' + lvFunctionName + ': Sending','LSTNR');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Sending','LSTNR');
 
     // To do: tracked tabs
     var lvArgs = {eventName: 'WEB_APP-BRAND_DETAIL_CLICK',
                   brandId: $(this).data('brandid'),
                   searchTerm: $('#fieldSearch').val(),
-                  message: ''};
+                  message: '',
+                  log: lvLog};
 
     $.post('/log',lvArgs,function(pvResponse){
     });
@@ -122,23 +156,11 @@ function brandDetailLink_listener(pvEvent){
  * Functions *
  *************/
 
-function search(pvSearchTerm){
-
-    var lvFunctionName = 'search';
-    log(gvScriptName + '.' + lvFunctionName + ': Start' ,'PROCS');
-
-    var lvArgs = {searchTerm: pvSearchTerm};
-
-    // Update the URL before sending the AJAX
-    window.history.pushState('', '', '?s=' + pvSearchTerm);
-
-    $.post('/search',lvArgs,displayRecommendations);
-}
-
 function displayRecommendations(pvArgs){
 
+    var lvLog = pvArgs.log;
     var lvFunctionName = 'displayRecommendations';
-    log(gvScriptName + '.' + lvFunctionName + ': Start' ,'PROCS');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Start','PROCS');
 
     $('#preLog').html(pvArgs.log);
     var lvHtml_brand = '';
@@ -208,8 +230,9 @@ function displayRecommendations(pvArgs){
 
 function getRecommendationTile(pvRecommendation,pvIsBrandSearch){
 
+    var lvLog = '';
     var lvFunctionName = 'getRecommendationTile';
-    log(gvScriptName + '.' + lvFunctionName + ': Start' ,'PROCS');
+    lvLog += log(gvScriptName_main,lvFunctionName,'Start','PROCS');
 
     var lvHtml = '';
     var lvBrandIdHtml = '';
@@ -227,7 +250,7 @@ function getRecommendationTile(pvRecommendation,pvIsBrandSearch){
     lvHtml += '      <p class="recTile_brandName" title="See all products from ' + pvRecommendation.brandName + '"><a class="recTile_brandName" data-brandname="' + encodeURIComponent(pvRecommendation.brandName.toLowerCase()) + '" data-brandid="' + pvRecommendation.brandId + '">' + pvRecommendation.brandName + '</a></p>';
     lvHtml += '      <p class="recTile_productName">' + pvRecommendation.productName + '</p>';
     lvHtml += '    </div>'; // columns recTile_textArea
-    lvHtml += '    <a data-recid="' + pvRecommendation.recommendationId + '" ' + lvBrandIdHtml + 'data-link="' + pvRecommendation.productURL + '" class="recTile_clickThru">Find Out More</a>';
+    lvHtml += '    <a data-recid="' + pvRecommendation.recommendationId + '" ' + lvBrandIdHtml + 'data-link="' + pvRecommendation.productURL + '" class="recTile_clickThru">Shop</a>';
     lvHtml += '  </div>'; // row recTile
 
     return lvHtml;

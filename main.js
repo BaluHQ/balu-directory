@@ -57,6 +57,7 @@ app.get('/', handler.rootGET);
 
 /* POST */
 
+app.post('/getdata', handler.getDataPOST);
 app.post('/search', handler.searchPOST);
 app.post('/log', handler.logPOST);
 
