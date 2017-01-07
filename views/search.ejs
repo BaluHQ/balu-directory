@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+      <% include partials/header %>
+  </head>
+  <body>
+
+    <% include partials/bodytop %>
+
+    <div class="row searchBar">
+      <div class="row">
+        <div class="large-6 large-centered columns small-10 small-centered text-center">
+          <input type="text" id="fieldSearch" name="search" placeholder="Search Balu" required>
+        </div>
+      </div>
+      <div class="row">
+        <div class="large-12 large-centered columns small-12 small-centered text-center">
+          <input type="button" id="buttonSearch" class="button radius tiny" value="Loading Data...">
+        </div>
+      </div>
+
+      <div id="brandContainer" class="brandDiv"></div>
+      <div id="recsContainer" class="recsDiv"></div>
+
+      <% include partials/footer %>
+
+      <% include partials/bodytail %>
+
+
+      <% if(isSearchTerm){ %>
+          <script>
+              $(document).ready(function(){
+
+                  // set the fieldSearch textbox to the searchTerm
+                  $('#fieldSearch').val("<%- searchTerm %>");
+
+                  var lvLog = '';
+                  lvLog += log('inline','search.ejs','Search term detected, running search','DEBUG');
+
+                  var lvArgs = {searchTerm: $('#fieldSearch').val(),
+                                log: lvLog};
+
+                  waitForDataThenSearch(lvArgs,displayRecommendations,1);
+
+              });
+          </script>
+      <% } %>
+
+  </body>
+</html>
