@@ -16,15 +16,14 @@ var gvScriptName_log = 'log';
 
 /* Logging control */
 var gvLogErrors = true;
-var gvLogProcs  = true;
-var gvLogRoutes = true;
-var gvLogDebugs = true;
-var gvLogInfos  = true;
-var gvLogInits  = true;
-var gvLogAJAX   = true;
-var gvLogLstnrs = true;
-var gvLogTemps  = true;
-
+var gvLogProcs  = false;
+var gvLogRoutes = false;
+var gvLogDebugs = false;
+var gvLogInfos  = false;
+var gvLogInits  = false;
+var gvLogAJAX   = false;
+var gvLogLstnrs = false;
+var gvLogTemps  = false;
 
 /*
  * Outputs a log message to the console
