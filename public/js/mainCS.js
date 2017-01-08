@@ -162,7 +162,7 @@ function displayRecommendations(pvArgs){
     var lvFunctionName = 'displayRecommendations';
     lvLog += log(gvScriptName_main,lvFunctionName,'Start','PROCS');
 
-    $('#preLog').html(pvArgs.log);
+    $('#preLog').append(pvArgs.log);
     var lvHtml_brand = '';
     var lvHtml_recs = '';
     var lvRecommendations = pvArgs.recommendations;
