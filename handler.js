@@ -139,6 +139,8 @@ module.exports = {
                   brandId:  req.body.brandId,
                   message: req.body.message,
                   url:     req.body.url};
-        model.addDirectoryLog(lvArgs);
+        model.addDirectoryLog(lvArgs,function(pvArgs){
+            res.send();
+        });
     }
 };

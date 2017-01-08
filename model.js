@@ -55,14 +55,10 @@ module.exports = {
         return gvParseServerURL;
     },
 
-    addDirectoryLog: function(pvArgs){
+    addDirectoryLog: function(pvArgs,pvCallback){
         Parse.Cloud.run('addDirectoryLog',pvArgs,{
             success: function(pvResponse){
                 console.log(pvResponse.log.substring(1,pvResponse.log.length)); // output the parse-server logs to the console immediately, to help with debugging
-                gvRecommendations = pvResponse_rec.data;
-                lvData.recommendations = gvRecommendations;
-                lvData.log += pvResponse_rec.log;
-                gvDataLastRefreshedDate = new Date();
                 pvCallback(null,lvData);
             },
             error: function(pvError_rec){
