@@ -61,6 +61,10 @@ app.post('/getdata', handler.getDataPOST);
 app.post('/search', handler.searchPOST);
 app.post('/log', handler.logPOST);
 
+// Now catch any other extensions and reroute them
+app.get('/*', function(req, res) {
+    res.redirect('/');
+});
 
 /*
  * Fire it up!
