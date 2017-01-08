@@ -59,12 +59,12 @@ module.exports = {
         Parse.Cloud.run('addDirectoryLog',pvArgs,{
             success: function(pvResponse){
                 console.log(pvResponse.log.substring(1,pvResponse.log.length)); // output the parse-server logs to the console immediately, to help with debugging
-                pvCallback(null,lvData);
+                pvCallback(null,pvResponse);
             },
             error: function(pvError_rec){
                 var lvError_rec = JSON.parse(pvError_rec.message);
                 log.log(lvError_rec.log); // print the error from the balu-parse-server to the console
-                pvCallback(lvError_rec.message,pvArgs); // send the user-friendly message back to the front end
+                pvCallback(lvError_rec.message,pvError_rec); // send the user-friendly message back to the front end
             }
         });
     },
