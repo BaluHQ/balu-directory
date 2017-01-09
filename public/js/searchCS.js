@@ -56,13 +56,29 @@ function getData(pvArgs,pvCallback){
             gvIndex.add({
 
                 // The index ref
-                id: pvSearchProduct.searchProductId + ' - ' + pvSearchProduct.productGroupId, // this makes it much easier to pull the productGroup from the search results
+                id: 'searchProducts' + ' - ' + pvSearchProduct.searchProductId + ' - ' + pvSearchProduct.productGroupId, // this makes it much easier to pull the productGroup from the search results
 
                 // The index search content
                 searchCategory: pvSearchProduct.searchCategoryName,
                 productGroup: pvSearchProduct.productGroupName,
                 sex: pvSearchProduct.sex,
                 positiveSearchTerms: pvSearchProduct.searchTerm1 + ' ' + pvSearchProduct.searchTerm2 + ' ' + pvSearchProduct.searchTerm3 + ' ' + pvSearchProduct.searchTerm4 + ' ' + pvSearchProduct.searchTerm5 + ' ' + pvSearchProduct.searchTerm6 + ' ' + pvSearchProduct.searchTerm7
+                //negativeSearchTerms: pvSearchProduct.negativeSearchTerm1 + ' ' + pvSearchProduct.negativeSearchTerm2 + ' ' + pvSearchProduct.negativeSearchTerm3 + ' ' + pvSearchProduct.negativeSearchTerm4
+            });
+            //store[entry.href] = {title: entry.title, abstract: entry.abstract};
+        });
+
+        gvRecommendations.forEach(function(pvRecommendation){
+            gvIndex.add({
+
+                // The index ref
+                id: 'recommendation' + ' - ' + pvRecommendation.recommendationId + ' - ' + pvRecommendation.productGroupId, // this makes it much easier to pull the productGroup from the search results
+
+                // The index search content
+                searchCategory: pvRecommendation.searchCategoryName,
+                productGroup: pvRecommendation.productGroupName,
+                sex: '',
+                positiveSearchTerms: pvRecommendation.productName + ' ' + pvRecommendation.brandName
                 //negativeSearchTerms: pvSearchProduct.negativeSearchTerm1 + ' ' + pvSearchProduct.negativeSearchTerm2 + ' ' + pvSearchProduct.negativeSearchTerm3 + ' ' + pvSearchProduct.negativeSearchTerm4
             });
             //store[entry.href] = {title: entry.title, abstract: entry.abstract};
@@ -149,30 +165,54 @@ function search(pvArgs,pvCallback){
 
         var lvSearchResults = gvIndex.search(lvSearchTerm);
 
-        // lvSearchResults is an array of objects {ref: x, score: y}, where x is a searchProductId
-        // So we need to go back to gvSearchProducts and create a list of productGroupIds, and use that to
-        // create a list of recommendations
+        // lvSearchResults is an array of objects {ref: x, score: y}, where x is a unique ID of the form [searchProducts | recommendation] - [<searchProductId> | <recommendationId>] - <productGroupId>
+        // The first third is always 13 characters, the IDs are always 10 characters
+        // If it's a website-level recommendation, there won't be a productGroupId (it will be "null")
 
-        // We're going to hold our lvProductGroups in an associative array, for ease of access later
+        // For searchProducts, we need to go back to gvSearchProducts and create a list of productGroupIds, and use that to
+        // create a list of recommendations
+        // For recommendations we simply look them up from gvRecommendations
+
+        // We're going to hold our lvProductGroups and lvRecs in associative arrays, for ease of access later
         var lvProductGroups = {};
+        var lvRecs = {};
 
         for(var l = 0; l < lvSearchResults.length; l++) {
-            // Our productGroupId is the second half of the index ref that was returned by the search (xxxxx - yyyyy)
-            var lvProductGroupId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ')+3,100);
-            // We might have already added this productGroup, in which case make sure we keep the highest scoring match
-            if(lvProductGroups[lvProductGroupId]) {
+
+            // Let's pull out our productGroupIds (which might be null) and the rec/searchProduct IDs
+            var lvSearchProductOrRec = lvSearchResults[l].ref.substring(0,14);
+            var lvProductGroupId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ',17)+3,100);
+            var lvRecOrSearchProductId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ')+3,27);
+
+            // First, searchProducts
+            if(lvSearchProductOrRec === 'searchProducts' && lvProductGroups[lvProductGroupId]) {
+                // We might have already added this productGroup, in which case make sure we keep the highest scoring match
                 lvProductGroups[lvProductGroupId] = Math.max(lvSearchResults[l].score,lvProductGroups[lvProductGroupId]);
-            } else {
+            } else if(lvSearchProductOrRec === 'searchProducts') {
+                // If we haven't added it yet, let's add it now
                 lvProductGroups[lvProductGroupId] = lvSearchResults[l].score;
+            }
+
+            // Second, recommendations (mutually exclusive with previous two conditionals)
+            if(lvSearchProductOrRec === 'recommendation') {
+                // We might already have this rec, by virtue of having its productGroup already, but we sort that out
+                // below
+                lvRecs[lvRecOrSearchProductId] = lvSearchResults[l].score;
             }
         }
 
         var lvRecommendations = [];
 
         for(var m = 0; m < gvRecommendations.length; m++) {
+            // We prioritise results that come to us via the searchProduct and productGroupLink. I.e.
+            // so if we have a rec via that method, as well as the rec via a direct match, we will take the
+            // score from the productGroup match. Arbitary choice, need to do something to avoid dupes.
             if(lvProductGroups[gvRecommendations[m].productGroupId]) {
                 lvRecommendations.push(gvRecommendations[m]);
                 lvRecommendations[lvRecommendations.length-1].score = lvProductGroups[gvRecommendations[m].productGroupId];
+            } else if (lvRecs[gvRecommendations[m].recommendationId]) {
+                lvRecommendations.push(gvRecommendations[m]);
+                lvRecommendations[lvRecommendations.length-1].score = lvRecs[gvRecommendations[m].recommendationId];
             }
         }
 
