@@ -164,15 +164,23 @@ function displayRecommendations(pvArgs){
 
     $('#preLog').append(pvArgs.log);
     var lvHtml_brand = '';
+    var lvHtml_brandRecs = '';
     var lvHtml_recs = '';
+    var lvHtml_noResults = '';
     var lvRecommendations = pvArgs.recommendations;
     var lvBrands = pvArgs.brands;
+    var lvBrandRecs = pvArgs.brandRecs;
+
+    if(lvRecommendations.length === 0 && lvBrands.length === 0 && lvBrandRecs.length === 0){
+        lvHtml_noResults += '<p>Sorry, we couldn\'t find any matching products or brands</p>';
+    }
 
     // The back-end will determine whether the searches matches a brand or not. If it does, we
-    // display a brand detail page rather than simply a list of matching recs. For brand matches,
-    // the pvArgs.brands dataset will contain the matching brand(s) (can be plural, e.g. Birdsong?),
-    // and the recs spreadsheet will contain the brands' products.
-    if(pvArgs.isBrand) {
+    // display a brand detail section, followed by a list of the brand's recs, then the standard
+    // recs found in the search.
+    // For brand matches, the pvArgs.brands dataset will contain the matching brand(s) (can be plural, e.g. Birdsong?),
+    // the brandRecs spreadsheet will contain the brands' recs, and recommendations will contain all the other recs.
+    if(pvArgs.matchedBrand) {
         var lvHomepage = pvArgs.brands[0].homepage.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/im)[1]; // strip out the gumph around the domain
         lvHtml_brand += '<div class="row">';
         lvHtml_brand += '  <div class="medium-1 column">';
@@ -186,16 +194,58 @@ function displayRecommendations(pvArgs){
         lvHtml_brand += '<a id="linkBrandUrl" data-link="' + pvArgs.brands[0].homepage + '" data-brandid="' + pvArgs.brands[0].brandId + '" class="brandHomepage" target="_blank">' + lvHomepage + '</a>';
     }
 
-    if(lvRecommendations.length === 0){
-        lvHtml_recs += '<p>We didn\'t find any products</p>';
-    }
-    // These are laid out in a grid, left to right, top to bottom. Some vars to help us through the loop...
+    // Recs are laid out in a grid, left to right, top to bottom. Some vars to help us through the loop...
     var lvNumberOfColumns = 3; // must divide into 12
     var lvGridColWidth = 12/lvNumberOfColumns;
     var lvMaxResults = 17;
-    var lvLastIndex = Math.min(lvMaxResults,lvRecommendations.length)-1;
+    var lvLastIndex = Math.min(lvMaxResults,lvBrandRecs.length)-1;
     var lvColCounter = 1;
-    for(var i = 0; i < lvRecommendations.length && i < lvMaxResults; i++, lvColCounter++){
+
+    // First do brand recs
+    if(pvArgs.matchedBrand) {
+
+        /* // don't think this helps
+        if(lvBrandRecs.length > 0) {
+            lvHtml_brandRecs += '<p class="resultsSectionTitle">' + pvArgs.brands[0].brandName + '\'s products</p>';
+        }*/
+
+        for(var i = 0; i < lvBrandRecs.length && i < lvMaxResults; i++, lvColCounter++){
+
+            if(lvColCounter === lvNumberOfColumns+1) {
+                lvColCounter = 1;
+            }
+            if(lvColCounter === 1) {
+                lvHtml_brandRecs += '<div class="row">';
+            }
+            if(i === lvLastIndex) {
+                lvHtml_brandRecs += '<div class="large-' + lvGridColWidth + ' columns end">';
+            } else {
+                lvHtml_brandRecs += '<div class="large-' + lvGridColWidth + ' columns">';
+            }
+            lvHtml_brandRecs += getRecommendationTile(lvBrandRecs[i],true);
+            lvHtml_brandRecs += '</div>';
+            if(lvColCounter === lvNumberOfColumns) {
+                lvHtml_brandRecs += '</div>';
+            }
+        }
+        if(lvColCounter !== lvNumberOfColumns) {
+            lvHtml_brandRecs += '</div>';
+        }
+    }
+
+    // Now do other (search result) recs. Start by resetting loop vars
+
+    lvNumberOfColumns = 3; // must divide into 12
+    lvGridColWidth = 12/lvNumberOfColumns;
+    lvMaxResults = 17;
+    lvLastIndex = Math.min(lvMaxResults,lvRecommendations.length)-1;
+    lvColCounter = 1;
+
+    if(lvRecommendations.length > 0 && pvArgs.matchedBrand && lvBrandRecs.length > 0) {
+        lvHtml_recs += '<p class="resultsSectionTitle">Other search results</p>';
+    }
+
+    for(var j = 0; j < lvRecommendations.length && j < lvMaxResults; j++, lvColCounter++){
 
         if(lvColCounter === lvNumberOfColumns+1) {
             lvColCounter = 1;
@@ -203,12 +253,12 @@ function displayRecommendations(pvArgs){
         if(lvColCounter === 1) {
             lvHtml_recs += '<div class="row">';
         }
-        if(i === lvLastIndex) {
+        if(j === lvLastIndex) {
             lvHtml_recs += '<div class="large-' + lvGridColWidth + ' columns end">';
         } else {
             lvHtml_recs += '<div class="large-' + lvGridColWidth + ' columns">';
         }
-        lvHtml_recs += getRecommendationTile(lvRecommendations[i],pvArgs.isBrand);
+        lvHtml_recs += getRecommendationTile(lvRecommendations[j],false);
         lvHtml_recs += '</div>';
         if(lvColCounter === lvNumberOfColumns) {
             lvHtml_recs += '</div>';
@@ -217,8 +267,11 @@ function displayRecommendations(pvArgs){
     if(lvColCounter !== lvNumberOfColumns) {
         lvHtml_recs += '</div>';
     }
+
     $('#brandContainer').html(lvHtml_brand);
+    $('#brandRecsContainer').html(lvHtml_brandRecs);
     $('#recsContainer').html(lvHtml_recs);
+    $('#noResultsContainer').html(lvHtml_noResults);
 
     // now add listeners to all the links
 
@@ -228,7 +281,7 @@ function displayRecommendations(pvArgs){
     $('a.recTile_brandName').click(brandDetailLink_listener);
 }
 
-function getRecommendationTile(pvRecommendation,pvIsBrandSearch){
+function getRecommendationTile(pvRecommendation,pvIsBrandRec){
 
     var lvLog = '';
     var lvFunctionName = 'getRecommendationTile';
@@ -236,7 +289,7 @@ function getRecommendationTile(pvRecommendation,pvIsBrandSearch){
 
     var lvHtml = '';
     var lvBrandIdHtml = '';
-    if(pvIsBrandSearch) {
+    if(pvIsBrandRec) {
         lvBrandIdHtml = 'data-brandid="' + pvRecommendation.brandId + '" ';
     }
     lvHtml += '  <div class="row recTile">';

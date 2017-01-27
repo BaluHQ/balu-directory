@@ -133,100 +133,104 @@ function search(pvArgs,pvCallback){
     var lvData = {};
     lvData.searchTerm = lvSearchTerm;
     lvData.log = lvLog;
-    lvData.isBrand = false;
+    lvData.matchedBrand = false;
     lvData.brands = [];
+    lvData.brandRecs = [];
     lvData.recommendations = [];
+
+    var lvBrandRecsRef = {}; // as a reference, so we can avoid duplicating results
+
 
     /* First, let's see if this is a brand */
 
     for(var i = 0; i < gvBrands.length; i++){
         if(lvSearchTerm !== '' && gvBrands[i].brandName.toLowerCase() === lvSearchTerm) {
             lvData.log += log(gvScriptName_search,lvFunctionName,'Matched on brand search',' INFO');
-            lvData.isBrand = true;
+            lvData.matchedBrand = true;
             lvData.brands.push(gvBrands[i]);
         }
     }
 
-    /* If we matched a brand, just get all the brands' products) */
+    /* If we matched a brand, get all the brands' recs */
 
-    if(lvData.isBrand){
+    if(lvData.matchedBrand){
         for(var j = 0; j < lvData.brands.length; j++){
             for(var k = 0; k < gvRecommendations.length; k++){
                 if(lvData.brands[j].brandId === gvRecommendations[k].brandId) {
-                    lvData.recommendations.push(gvRecommendations[k]);
+                    lvData.brandRecs.push(gvRecommendations[k]);
+                    lvBrandRecsRef[gvRecommendations[k].brandId] = true;
                 }
             }
         }
-        lvData.log += log(gvScriptName_search,lvFunctionName,'Picked up ' + lvData.recommendations.length + ' recommendations for ' + lvData.brands.length + ' brand',' INFO');
-
+        lvData.log += log(gvScriptName_search,lvFunctionName,'Picked up ' + lvData.brandRecs.length + ' recommendations for ' + lvData.brands.length + ' brand',' INFO');
     } else {
-
-        /* Otherwise, let's search the Balu product database (searchProduct), find the matching productGroups, and filter the recommendations accordingly */
-
-        var lvSearchResults = gvIndex.search(lvSearchTerm);
-
-        // lvSearchResults is an array of objects {ref: x, score: y}, where x is a unique ID of the form [searchProducts | recommendation] - [<searchProductId> | <recommendationId>] - <productGroupId>
-        // The first third is always 13 characters, the IDs are always 10 characters
-        // If it's a website-level recommendation, there won't be a productGroupId (it will be "null")
-
-        // For searchProducts, we need to go back to gvSearchProducts and create a list of productGroupIds, and use that to
-        // create a list of recommendations
-        // For recommendations we simply look them up from gvRecommendations
-
-        // We're going to hold our lvProductGroups and lvRecs in associative arrays, for ease of access later
-        var lvProductGroups = {};
-        var lvRecs = {};
-
-        for(var l = 0; l < lvSearchResults.length; l++) {
-
-            // Let's pull out our productGroupIds (which might be null) and the rec/searchProduct IDs
-            var lvSearchProductOrRec = lvSearchResults[l].ref.substring(0,14);
-            var lvProductGroupId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ',17)+3,100);
-            var lvRecOrSearchProductId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ')+3,27);
-
-            // First, searchProducts
-            if(lvSearchProductOrRec === 'searchProducts' && lvProductGroups[lvProductGroupId]) {
-                // We might have already added this productGroup, in which case make sure we keep the highest scoring match
-                lvProductGroups[lvProductGroupId] = Math.max(lvSearchResults[l].score,lvProductGroups[lvProductGroupId]);
-            } else if(lvSearchProductOrRec === 'searchProducts') {
-                // If we haven't added it yet, let's add it now
-                lvProductGroups[lvProductGroupId] = lvSearchResults[l].score;
-            }
-
-            // Second, recommendations (mutually exclusive with previous two conditionals)
-            if(lvSearchProductOrRec === 'recommendation') {
-                // We might already have this rec, by virtue of having its productGroup already, but we sort that out
-                // below
-                lvRecs[lvRecOrSearchProductId] = lvSearchResults[l].score;
-            }
-        }
-
-        var lvRecommendations = [];
-
-        for(var m = 0; m < gvRecommendations.length; m++) {
-            // We prioritise results that come to us via the searchProduct and productGroupLink. I.e.
-            // so if we have a rec via that method, as well as the rec via a direct match, we will take the
-            // score from the productGroup match. Arbitary choice, need to do something to avoid dupes.
-            if(lvProductGroups[gvRecommendations[m].productGroupId]) {
-                lvRecommendations.push(gvRecommendations[m]);
-                lvRecommendations[lvRecommendations.length-1].score = lvProductGroups[gvRecommendations[m].productGroupId];
-            } else if (lvRecs[gvRecommendations[m].recommendationId]) {
-                lvRecommendations.push(gvRecommendations[m]);
-                lvRecommendations[lvRecommendations.length-1].score = lvRecs[gvRecommendations[m].recommendationId];
-            }
-        }
-
-        lvRecommendations = lvRecommendations.sort(
-            function(a,b){
-                return b.score-a.score;
-            }
-        );
-
-        if(lvRecommendations.length > 0) {
-            lvData.log += log(gvScriptName_search,lvFunctionName,'Matched ' + lvRecommendations.length + ' recommendations on product search',' INFO');
-        }
-        lvData.recommendations = lvRecommendations;
+        lvData.log += log(gvScriptName_search,lvFunctionName,'Picked up 0 brands',' INFO');
     }
+
+    /* Now let's search the Balu product database (searchProduct), find the matching productGroups, and filter the recommendations accordingly */
+
+    var lvSearchResults = gvIndex.search(lvSearchTerm);
+
+    // lvSearchResults is an array of objects {ref: x, score: y}, where x is a unique ID of the form [searchProducts | recommendation] - [<searchProductId> | <recommendationId>] - <productGroupId>
+    // The first third is always 13 characters, the IDs are always 10 characters
+    // If it's a website-level recommendation, there won't be a productGroupId (it will be "null")
+
+    // For searchProducts, we need to go back to gvSearchProducts and create a list of productGroupIds, and use that to
+    // create a list of recommendations
+    // For recommendations we simply look them up from gvRecommendations
+
+    // We're going to hold our lvProductGroups and lvRecs in associative arrays, for ease of access later
+    var lvProductGroups = {};
+    var lvRecs = {};
+
+    for(var l = 0; l < lvSearchResults.length; l++) {
+        // Let's pull out our productGroupIds (which might be null) and the rec/searchProduct IDs
+        var lvSearchProductOrRec = lvSearchResults[l].ref.substring(0,14);
+        var lvProductGroupId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ',17)+3,100);
+        var lvRecOrSearchProductId = lvSearchResults[l].ref.substring(lvSearchResults[l].ref.indexOf(' - ')+3,27);
+
+        // First, searchProducts
+        if(lvSearchProductOrRec === 'searchProducts' && lvProductGroups[lvProductGroupId]) {
+            // We might have already added this productGroup, in which case make sure we keep the highest scoring match
+            lvProductGroups[lvProductGroupId] = Math.max(lvSearchResults[l].score,lvProductGroups[lvProductGroupId]);
+        } else if(lvSearchProductOrRec === 'searchProducts') {
+            // If we haven't added it yet, let's add it now
+            lvProductGroups[lvProductGroupId] = lvSearchResults[l].score;
+        }
+
+        // Second, recommendations (mutually exclusive with previous two conditionals)
+        if(lvSearchProductOrRec === 'recommendation') {
+            // We might already have this rec, by virtue of having its productGroup already, but we sort that out
+            // below
+            lvRecs[lvRecOrSearchProductId] = lvSearchResults[l].score;
+        }
+    }
+
+    var lvRecommendations = [];
+
+    for(var m = 0; m < gvRecommendations.length; m++) {
+        // We prioritise results that come to us via the searchProduct and productGroupLink. I.e.
+        // so if we have a rec via that method, as well as the rec via a direct match, we will take the
+        // score from the productGroup match. Arbitary choice, need to do something to avoid dupes.
+        // And we exclude any that have been added to the brandRecs results already
+        if(lvProductGroups[gvRecommendations[m].productGroupId] && !lvBrandRecsRef[gvRecommendations[m].brandId]) {
+            lvRecommendations.push(gvRecommendations[m]);
+            lvRecommendations[lvRecommendations.length-1].score = lvProductGroups[gvRecommendations[m].productGroupId];
+        } else if (lvRecs[gvRecommendations[m].recommendationId] && !lvBrandRecsRef[gvRecommendations[m].brandId]) {
+            lvRecommendations.push(gvRecommendations[m]);
+            lvRecommendations[lvRecommendations.length-1].score = lvRecs[gvRecommendations[m].recommendationId];
+        }
+    }
+
+    lvRecommendations = lvRecommendations.sort(
+        function(a,b){
+            return b.score-a.score;
+        }
+    );
+
+    lvData.log += log(gvScriptName_search,lvFunctionName,'Matched ' + lvRecommendations.length + ' recommendations on product search',' INFO');
+
+    lvData.recommendations = lvRecommendations;
 
     lvData.log += log(gvScriptName_search,lvFunctionName,'Search complete','PROCS');
 

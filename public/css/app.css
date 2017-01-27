@@ -32,6 +32,20 @@
     margin-top: 25px;
 }
 
+.noResultsDiv {
+    text-align: center;
+}
+
+.resultsSectionTitle {
+    color: white;
+    margin-left: 10px;
+    font-size: larger;
+    margin-bottom: 0px;
+}
+
+
+/* BRAND DETAILS SECTION */
+
 .brandTitle {
     color: #35b19c; /* darker than Balu green */
     font-family: Noto Sans;
