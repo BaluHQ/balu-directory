@@ -18,6 +18,7 @@ var gvScriptName_main = 'mainCS';
     var lvFunctionName = 'initialise';
     lvLog += log(gvScriptName_main,lvFunctionName,'Start','INITS');
 
+    // Do everything when the DOM is ready
     $(document).ready(function(){
 
         var lvArgs_log = {eventName: 'WEB_APP-PAGE_LOAD',
@@ -40,7 +41,6 @@ var gvScriptName_main = 'mainCS';
             $('#fieldSearch').keypress(searchButtonEnter_listener);
 
             // Append logs to screen
-
             $('#preLog').append(pvLog);
         });
 
@@ -173,6 +173,7 @@ function displayRecommendations(pvArgs){
 
     if(lvRecommendations.length === 0 && lvBrands.length === 0 && lvBrandRecs.length === 0){
         lvHtml_noResults += '<p>Sorry, we couldn\'t find any matching products or brands</p>';
+        lvHtml_noResults += '<p>Why don\'t you download the <a href="https://chrome.google.com/webstore/detail/balu-beta/hjfoamcjlpfooinjmlkgclgmaooiiddh" taret="_blank">Balu Chrome browser extension</a>. Then you can get the latest ethical recommendations directly in your browser while you shop :)</p>';
     }
 
     // The back-end will determine whether the searches matches a brand or not. If it does, we

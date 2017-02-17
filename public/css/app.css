@@ -4,8 +4,14 @@
  * Search
  */
 
+ .headerText {
+     margin-top: 50px;
+     color: #35b19c; /* darker than Balu green */
+     font-family: Noto Sans;
+     font-size: larger;
+ }
+
 .searchBar {
-    margin-top: 50px;
 }
 
 #fieldSearch {
@@ -33,7 +39,9 @@
 }
 
 .noResultsDiv {
-    text-align: center;
+    color: #35b19c; /* darker than Balu green */
+    font-family: Noto Sans;
+    font-size: smaller;
 }
 
 .resultsSectionTitle {
