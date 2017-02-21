@@ -172,8 +172,8 @@ function displayRecommendations(pvArgs){
     var lvBrandRecs = pvArgs.brandRecs;
 
     if(lvRecommendations.length === 0 && lvBrands.length === 0 && lvBrandRecs.length === 0){
-        lvHtml_noResults += '<p>Sorry, we couldn\'t find any matching products or brands</p>';
-        lvHtml_noResults += '<p>Why don\'t you download the <a href="https://chrome.google.com/webstore/detail/balu-beta/hjfoamcjlpfooinjmlkgclgmaooiiddh" taret="_blank">Balu Chrome browser extension</a>. Then you can get the latest ethical recommendations directly in your browser while you shop :)</p>';
+        lvHtml_noResults += '<p>Sorry, we couldn\'t find any matching products or brands. Try a simpler search?</p>';
+        lvHtml_noResults += '<p>Or why don\'t you download the <a href="https://chrome.google.com/webstore/detail/balu-beta/hjfoamcjlpfooinjmlkgclgmaooiiddh" taret="_blank">Balu Chrome browser extension</a>. Then you can get the latest ethical recommendations directly in your browser while you shop :)</p>';
     }
 
     // The back-end will determine whether the searches matches a brand or not. If it does, we
