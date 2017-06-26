@@ -7,11 +7,22 @@
 
     <% include partials/bodytop %>
 
-    <div class="row headerText">
-      <div class="large-6 large-centered columns small-10 small-centered text-center">
-        <p>Use Balu to search for ethical products, from t-shirts to headphones, cola alternatives to beautiful-sourced jewellery. Just search below!</p>
+    <% if (isRedirectFromUninstall) { %>
+        <div class="row headerText">
+          <div class="thankyou large-6 large-centered columns small-10 small-centered text-center">
+            <p>Thank you for using Balu. We're sorry to see you go! You can still explore Balu's brilliant brands without the app. Just search our directory below...</p>
+          </div>
+        </div>
+    <% } %>
+
+    <% if (!isRedirectFromUninstall) { %>
+      <div class="row headerText">
+        <div class="large-6 large-centered columns small-10 small-centered text-center">
+          <p>Use Balu to search for ethical products, from t-shirts to headphones, cola alternatives to beautiful-sourced jewellery. Just search below!</p>
+        </div>
       </div>
-    </div>
+    <% } %>
+
 
     <div class="row searchBar">
       <div class="large-6 large-centered columns small-10 small-centered text-center">

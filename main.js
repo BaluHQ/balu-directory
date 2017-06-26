@@ -39,6 +39,7 @@ app.use(bodyParser.json());
 /* Application-spectific Middleware */
 
 app.use('/search', handler.setUpLogString);
+app.use('/thanks', handler.setUpLogString);
 
 /* Serve static files */
 
@@ -51,6 +52,7 @@ app.use(express.static(__dirname + '/public'));
 /* GET */
 
 app.get('/search', handler.searchGET);
+app.get('/thanks', handler.thanksGET);
 
 // No path specified
 app.get('/', handler.rootGET);

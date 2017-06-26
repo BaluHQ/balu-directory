@@ -69,14 +69,45 @@ module.exports = {
 
         // Load the search page
         var lvPageElements = {isSearchTerm: false,
-                              searchTerm: ''};
+                              searchTerm: '',
+                              isRedirectFromUninstall: false};
 
         // Check whether we've got a search term in the URL, and pass it through to the front end JS so it knows to
         // fire off the search AJAX onload
         if(req.query.s){
             lvPageElements.searchTerm = req.query.s;
             lvPageElements.isSearchTerm = true;
+            lvPageElements.isRedirectFromUninstall = false;
         }
+
+        lvLog += log.log(gvScriptName,lvFunctionName,'Rendering to search.ejs','PROCS');
+
+        lvPageElements.log = lvLog;
+        res.render('search.ejs',lvPageElements);
+    },
+
+    // This is the page the extension redirects to after a user uninstalls it.
+    thanksGET: function(req,res,next){
+
+        var lvLog = req.log;
+        var lvFunctionName = 'thanksGET';
+        lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
+
+        lvArgs = {eventName:  'EXTENSION-UNINSTALL',
+                  message: null};
+
+        if(req.query.u){
+            lvArgs.message = req.query.u;
+        }
+
+        model.addDirectoryLog(lvArgs,function(pvArgs){
+            res.send();
+        });
+
+        // Load the search page
+        var lvPageElements = {isSearchTerm: false,
+                              searchTerm: '',
+                              isRedirectFromUninstall: true};
 
         lvLog += log.log(gvScriptName,lvFunctionName,'Rendering to search.ejs','PROCS');
 
@@ -143,4 +174,5 @@ module.exports = {
             res.send();
         });
     }
+
 };

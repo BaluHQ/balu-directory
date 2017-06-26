@@ -4,12 +4,18 @@
  * Search
  */
 
- .headerText {
-     margin-top: 50px;
-     color: #35b19c; /* darker than Balu green */
-     font-family: Noto Sans;
-     font-size: larger;
- }
+.headerText {
+    margin-top: 50px;
+    color: #35b19c; /* darker than Balu green */
+    font-family: Noto Sans;
+    font-size: larger;
+}
+
+.thankyou {
+    background-color: #e6e6e6;
+    padding: 20px;
+    margin-bottom: 20px;
+}
 
 .searchBar {
 }
