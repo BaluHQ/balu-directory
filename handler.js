@@ -56,6 +56,7 @@ module.exports = {
     setUpLogString: function(req,res,next){
         req.log = '';
         req.log += gvInitLog + log.log(gvScriptName,'expressMiddleware','[' + req.method + '] ' + req.originalUrl,'ROUTE');
+        gvInitLog = '';
         next();
     },
 
