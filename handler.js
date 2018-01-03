@@ -22,6 +22,8 @@ var model = promise.promisifyAll(require('./model.js'));
 /* Logging control */
 var gvScriptName = 'handler';
 
+var gvInitLog = ''; // We capture a bunch of logs from init, and need to pass them on to the first page rendering
+
 /* Parse SDK config variables */
 log.setLoggingMode({parseServerURL: model.getBaluParseServerURL()}); // e.g. on the test server all logging is turned on
 
@@ -33,10 +35,11 @@ log.setLoggingMode({parseServerURL: model.getBaluParseServerURL()}); // e.g. on 
     var lvLog = '';
     var lvFunctionName = 'initialise';
     lvLog += log.log(gvScriptName,lvFunctionName,'Start','INITS');
-
+    lvLog += log.log(gvScriptName,lvFunctionName,'Connected to ' + model.getBaluParseServerURL(),' INFO');
     // Fire this off now to make sure the data is refreshed when the app is first spun up
     model.getDataAsync({log: lvLog})
     .then(function(pvArgs){
+        gvInitLog = pvArgs.log;
     });
 
 })();
@@ -52,7 +55,7 @@ module.exports = {
      */
     setUpLogString: function(req,res,next){
         req.log = '';
-        req.log += log.log(gvScriptName,'expressMiddleware','[' + req.method + '] ' + req.originalUrl,'ROUTE');
+        req.log += gvInitLog + log.log(gvScriptName,'expressMiddleware','[' + req.method + '] ' + req.originalUrl,'ROUTE');
         next();
     },
 
