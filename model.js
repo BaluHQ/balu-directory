@@ -109,21 +109,18 @@ module.exports = {
         if(lvRefreshNeeded) {
             Parse.Cloud.run('getEthicalBrands',{archived: 'EXCLUDE'},{
                 success: function(pvResponse_eb){
-                    console.log(pvResponse_eb.log.substring(1,pvResponse_eb.log.length)); // output the parse-server logs to the console immediately, to help with debugging
                     gvBrands = pvResponse_eb.data;
                     lvData.brands = gvBrands;
                     lvData.log += pvResponse_eb.log;
 
                     Parse.Cloud.run('getSearchProducts',{},{
                         success: function(pvResponse_search){
-                            console.log(pvResponse_search.log.substring(1,pvResponse_search.log.length)); // output the parse-server logs to the console immediately, to help with debugging
                             gvSearchProducts = pvResponse_search.data;
                             lvData.searchProducts = gvSearchProducts;
                             lvData.log += pvResponse_search.log;
 
                             Parse.Cloud.run('getRecommendations',{archived: 'EXCLUDE'},{
                                 success: function(pvResponse_rec){
-                                    console.log(pvResponse_rec.log.substring(1,pvResponse_rec.log.length)); // output the parse-server logs to the console immediately, to help with debugging
                                     gvRecommendations = pvResponse_rec.data;
                                     lvData.recommendations = gvRecommendations;
                                     lvData.log += pvResponse_rec.log;
