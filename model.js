@@ -58,7 +58,6 @@ module.exports = {
     addDirectoryLog: function(pvArgs,pvCallback){
         Parse.Cloud.run('addDirectoryLog',pvArgs,{
             success: function(pvResponse){
-                console.log(pvResponse.log.substring(1,pvResponse.log.length)); // output the parse-server logs to the console immediately, to help with debugging
                 pvCallback(null,pvResponse);
             },
             error: function(pvError_rec){
@@ -105,7 +104,6 @@ module.exports = {
                       searchProducts: gvSearchProducts,
                       recommendations: gvRecommendations,
                       log: lvLog};
-
         if(lvRefreshNeeded) {
             Parse.Cloud.run('getEthicalBrands',{archived: 'EXCLUDE'},{
                 success: function(pvResponse_eb){
