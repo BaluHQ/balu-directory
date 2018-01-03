@@ -28,7 +28,7 @@ var gvRecommendations = [];
 var gvScriptName = 'model';
 
 /* Parse SDK Config */
-var gvParseServerURL = process.env.PARSE_SERVER_PRD || 'http://localhost:1337/parse'; // default to localhost
+var gvParseServerURL = process.env.PARSE_SERVER || 'http://localhost:1337/parse'; // default to localhost
 var gvAppId = 'mmhyD9DKGeOanjpRLHCR3bX8snue22oOd3NGfWKu';
 
 /*
