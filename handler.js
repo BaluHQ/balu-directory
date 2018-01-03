@@ -54,9 +54,10 @@ module.exports = {
      * Set up our log string in req, so all other middleware can do a += on it.
      */
     setUpLogString: function(req,res,next){
-        req.log = '';
-        req.log += gvInitLog + log.log(gvScriptName,'expressMiddleware','[' + req.method + '] ' + req.originalUrl,'ROUTE');
+        var temp_log = gvInitLog + log.log(gvScriptName,'expressMiddleware','[' + req.method + '] ' + req.originalUrl,'ROUTE');
         gvInitLog = '';
+        req.log = '';
+        req.log += temp_log;
         next();
     },
 
