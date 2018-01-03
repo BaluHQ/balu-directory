@@ -238,7 +238,7 @@ function displayRecommendations(pvArgs){
 
     lvNumberOfColumns = 3; // must divide into 12
     lvGridColWidth = 12/lvNumberOfColumns;
-    lvMaxResults = 17;
+    lvMaxResults = 100;
     lvLastIndex = Math.min(lvMaxResults,lvRecommendations.length)-1;
     lvColCounter = 1;
 
