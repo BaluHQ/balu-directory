@@ -164,15 +164,14 @@ module.exports = {
         var lvLog = req.body.log;
         var lvFunctionName = 'logPOST';
         lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
-        lvArgs = {eventName: req.body.eventName,
-                  searchTerm: req.body.searchTerm,
+        lvArgs = {eventName:         req.body.eventName,
+                  searchTerm:        req.body.searchTerm,
                   recommendationId:  req.body.recommendationId,
-                  brandId:  req.body.brandId,
-                  message: req.body.message,
-                  url:     req.body.url};
+                  brandId:           req.body.brandId,
+                  message:           req.body.message,
+                  url:               req.body.url};
         model.addDirectoryLog(lvArgs,function(pvArgs){
             res.send();
         });
     }
-
 };
