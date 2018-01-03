@@ -145,23 +145,6 @@ module.exports = {
         });
     },
 
-    searchPOST: function(req,res,next){
-
-        var lvLog = req.body.log;
-        var lvFunctionName = 'searchPOST';
-        lvLog += log.log(gvScriptName,lvFunctionName,'Start','PROCS');
-
-        lvLog += log.log(gvScriptName,lvFunctionName,'req.body.searchTerm == ' + req.body.searchTerm,'DEBUG');
-
-        lvArgs = {searchTerm: req.body.searchTerm,
-                 log:         lvLog};
-
-        model.filterData(lvArgs, function(pvData){
-            pvData.log += log.log(gvScriptName,lvFunctionName,'Back end complete, returning data to client','DEBUG');
-            res.send(pvData);
-        });
-    },
-
     logPOST: function(req,res,next){
 
         var lvLog = req.body.log;
