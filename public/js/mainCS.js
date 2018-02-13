@@ -187,12 +187,21 @@ function displayRecommendations(pvArgs){
         lvHtml_brand += '  <div class="medium-1 column">';
         lvHtml_brand += '    <img src="https://twitter.com/' + pvArgs.brands[0].twitterHandle + '/profile_image?size=bigger" />';
         lvHtml_brand += '  </div>';
-        lvHtml_brand += '  <div class="medium-11 columns">';
+        lvHtml_brand += '  <div class="medium-8 columns end">';
         lvHtml_brand += '    <h1><a id="linkBrandTitle" data-link="' + pvArgs.brands[0].homepage + '" data-brandid="' + pvArgs.brands[0].brandId + '" class="brandTitle" target="_blank">' + pvArgs.brands[0].brandName + '</a></h1>';
         lvHtml_brand += '  </div>';
         lvHtml_brand += '</div>';
-        lvHtml_brand += '<p class="brandSpiel">' + pvArgs.brands[0].brandSpiel + '</p>';
-        lvHtml_brand += '<a id="linkBrandUrl" data-link="' + pvArgs.brands[0].homepage + '" data-brandid="' + pvArgs.brands[0].brandId + '" class="brandHomepage" target="_blank">' + lvHomepage + '</a>';
+        lvHtml_brand += '<div class="row">';
+        lvHtml_brand += '  <div class="medium-9 columns end">';
+        lvHtml_brand += '    <p class="brandSpiel">' + pvArgs.brands[0].brandSpiel + '</p>';
+        lvHtml_brand += '  </div>';
+        lvHtml_brand += '</div>';
+        lvHtml_brand += '<div class="row">';
+        lvHtml_brand += '  <div class="medium-9 columns end">';
+        lvHtml_brand += '    <a id="linkBrandUrl" data-link="' + pvArgs.brands[0].homepage + '" data-brandid="' + pvArgs.brands[0].brandId + '" class="brandHomepage" target="_blank">' + lvHomepage + '</a>';
+        lvHtml_brand += '  </div>';
+        lvHtml_brand += '</div>';
+
     }
 
     // Recs are laid out in a grid, left to right, top to bottom. Some vars to help us through the loop...
